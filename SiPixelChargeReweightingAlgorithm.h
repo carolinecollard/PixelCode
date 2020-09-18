@@ -1,28 +1,6 @@
 #ifndef SimTracker_SiPixelDigitizer_SiPixelChargeReweightingAlgorithm_h
 #define SimTracker_SiPixelDigitizer_SiPixelChargeReweightingAlgorithm_h
 
-/*
-#include <map>
-#include <memory>
-#include <vector>
-#include <iostream>
-#include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "SimTracker/Common/interface/SimHitInfoForLinks.h"
-#include "DataFormats/Math/interface/approx_exp.h"
-#include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
-#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "CondFormats/SiPixelTransient/interface/SiPixelTemplate2D.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixel2DTemplateDBObject.h"
-#include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
-#include "CalibTracker/Records/interface/SiPixelFEDChannelContainerESProducerRcd.h"
-#include "boost/multi_array.hpp"
-*/
-
 #include "SimTracker/SiPixelDigitizer/plugins/SiPixelDigitizerAlgorithm.h"
 
 typedef boost::multi_array<float, 2> array_2d;
