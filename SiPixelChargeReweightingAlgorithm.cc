@@ -12,7 +12,7 @@
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimTracker/Common/interface/SiG4UniversalFluctuation.h"
-#include "SiPixelChargeReweightingAlgorithm.h"
+#include "SimTracker/SiPixelDigitizer/plugins/SiPixelChargeReweightingAlgorithm.h"
 
 #include <gsl/gsl_sf_erf.h>
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -76,8 +76,6 @@ using namespace edm;
 using namespace sipixelobjects;
 
 void SiPixelChargeReweightingAlgorithm::init(const edm::EventSetup& es) {
-  //Caro
-  std::cout << " in SiPixelChargeReweightingAlgorithm::init UseReweighting = " << UseReweighting << std::endl;
   
   // Read template files for charge reweighting
   if (UseReweighting) {
@@ -109,7 +107,6 @@ SiPixelChargeReweightingAlgorithm::SiPixelChargeReweightingAlgorithm(const edm::
       IDnum(conf.exists("TemplateIDnumerator") ? conf.getParameter<int>("TemplateIDnumerator") : 0),
       IDden(conf.exists("TemplateIDdenominator") ? conf.getParameter<int>("TemplateIDdenominator") : 0),
 
-      // Add pixel radiation damage for upgrade studies
       UseReweighting(conf.getParameter<bool>("UseReweighting")),
       PrintClusters(conf.getParameter<bool>("PrintClusters")),
       PrintTemplates(conf.getParameter<bool>("PrintTemplates"))  {
@@ -140,9 +137,6 @@ bool SiPixelChargeReweightingAlgorithm::hitSignalReweight(const PSimHit& hit,
   int icol_min = topol->ncolumns();
   int icol_max = 0;
 
-  //Caro
-  //std::cout << " in SiPixelChargeReweightingAlgorithm::hitSignalReweight " ;
-  
   float chargeBefore = 0;
   float chargeAfter = 0;
   signal_map_type hitSignal;
@@ -151,10 +145,7 @@ bool SiPixelChargeReweightingAlgorithm::hitSignalReweight(const PSimHit& hit,
   for (std::map<int, float, std::less<int> >::const_iterator im = hit_signal.begin(); im != hit_signal.end(); ++im) {
     int chan = (*im).first;
     std::pair<int, int> pixelWithCharge = PixelDigi::channelToPixel(chan);
-    //std::cout << "PixelHit - x: " << pixelWithCharge.first << " y: " << pixelWithCharge.second << "  With Charge:  " << (*im).second <<  std::endl;
 
-// Caro
-//    hitSignal[chan] += (makeDigiSimLinks_ ? Amplitude((*im).second, &hit, hitIndex, tofBin, (*im).second)
     hitSignal[chan] += (boolmakeDigiSimLinks ? SiPixelDigitizerAlgorithm::Amplitude((*im).second, &hit, hitIndex, tofBin, (*im).second)
                                           : SiPixelDigitizerAlgorithm::Amplitude((*im).second, (*im).second));
     chargeBefore += (*im).second;
@@ -282,7 +273,6 @@ bool SiPixelChargeReweightingAlgorithm::hitSignalReweight(const PSimHit& hit,
       //Fill charges into 21x13 Pixel Array with hitPixel in centre
       pixrewgt[row][col] =
           hitSignal[PixelDigi::pixelToChannel(hitPixel.first + row - THX, hitPixel.second + col - THY)];
-      //std::cout << "Signal in " << hitPixel.first + row - THX << "/" << hitPixel.second + col - THY << " is " << hitSignal[PixelDigi::pixelToChannel(hitPixel.first + row - THX, hitPixel.second + col - THY)] << std::endl;
     }
   }
 
@@ -326,15 +316,9 @@ bool SiPixelChargeReweightingAlgorithm::hitSignalReweight(const PSimHit& hit,
         chargeAfter += charge;
         theSignal[PixelDigi::pixelToChannel(hitPixel.first + row - THX, hitPixel.second + col - THY)] +=
             (boolmakeDigiSimLinks ? SiPixelDigitizerAlgorithm::Amplitude(charge, &hit, hitIndex, tofBin, charge) : SiPixelDigitizerAlgorithm::Amplitude(charge, charge));
-// Caro
-//            (makeDigiSimLinks_ ? Amplitude(charge, &hit, hitIndex, tofBin, charge) : Amplitude(charge, charge));
       }
     }
   }
-
-  //Caro
-  //std::cout << " Charges (before->after): " << chargeBefore << " -> " << chargeAfter << std::endl;
-  //std::cout << "Charge loss: " << (1 - chargeAfter / chargeBefore) * 100 << " %" << std::endl << std::endl;
 
   if (chargeBefore != 0. && chargeAfter == 0.) {
     return false;
